@@ -1,0 +1,9 @@
+# Simulated file
+# There are two conditions (30C and 42C), two fractions (Sup and Pellet) and six sample files
+Condition	Fraction	File
+30C	Tot	sample1.txt
+30C	Sup	sample2.txt
+30C	Pellet	sample3.txt
+42C	Tot	sample4.txt
+42C	Sup	sample5.txt
+42C	Pellet	sample6.txt

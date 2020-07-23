@@ -1,0 +1,39 @@
+Package: RNAFracQuant
+Version: 0.1
+Date: 2020-07-07
+Title: RNA in Fractions Quantification
+Description: This is a demo package for predicting the quantification of RNA in different fractions.
+Author: Edward Wallace <edward.wallace@ed.ac.uk>; Xuejia Ke <s1924580@ed.ac.uk>
+Maintainer: Edward Wallace <edward.wallace@ed.ac.uk>; Xuejia Ke <s1924580@ed.ac.uk>
+RoxygenNote: 7.1.1
+Encoding: UTF-8
+License: Apache License 2.0
+Depends:
+    R (>= 3.5.0),
+    dplyr
+Imports:
+    here,
+    methods,
+    plyr,
+    Rcpp (>= 0.12.0),
+    RcppParallel (>= 5.0.1),
+    readr,
+    rstan (>= 2.18.1),
+    rstantools (>= 2.1.1),
+    tidybayes,
+    tidyr
+LazyData: true
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Biarch: true
+LinkingTo: 
+    BH (>= 1.66.0),
+    Rcpp (>= 0.12.0),
+    RcppEigen (>= 0.3.3.3.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    StanHeaders (>= 2.18.0)
+SystemRequirements: GNU make

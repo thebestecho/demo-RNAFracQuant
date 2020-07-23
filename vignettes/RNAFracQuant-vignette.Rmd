@@ -1,0 +1,261 @@
+---
+title: "Introduction to package RNAFracQuant"
+author:
+  - Edward Wallace^[University of Edinburgh, jane@example.org]
+  - Xuejia Ke^[University of Edinburgh, edward.wallace@ed.ac.uk]
+date: "July 2020"
+output:
+  html_document:
+    toc: true
+    self_contained: no
+    theme: readable
+    highlight: tango
+vignette: >
+ %\VignetteIndexEntry{An introduction to RNAFracQuant}
+ %\VignetteEngine{knitr::rmarkdown}
+ %\VignetteEncoding{UTF-8}
+---
+
+```{r setup,warning=FALSE,message=FALSE,echo=FALSE}
+## knitr options for report generation
+knitr::opts_chunk$set(
+  warning=FALSE,
+  message=FALSE,
+  echo=TRUE,
+  cache = FALSE,
+  results = "show",
+  comment = "#>"
+)
+library(dplyr)
+library(tidybayes)
+library(tidyr)
+library(rstan)
+library(RNAFracQuant)
+
+```
+# 1. Introduction
+This vignette introduces how to use the functions in this packge. This package employs a bayesian statistical model to quantify the distribution of mRNA in Saccharomyces Cerevisiae cells. The whole idea is based on this heat shock experiment:
+
+*"To prepare RNA-seq data, cells are fractionated before cloning the resulting RNA into cDNA libraries. Then after centrifugation, granules with large molecular weight would deposit at the bottom and the others remain in the supernatant. Total transcripts and transcripts in the two factions (Supernatant, Pellet) are measured respectively both before and after heat shock. Therefore, for each transcript, we have a basic formula $N_{total} = N_{pellet} + N_{supernatant}$."*
+
+![Experiment example design](system.file("vignettes", "Experiment_design.png", package = "RNAFracQuant"))
+
+## 1.1 Required input files and their format
+Users need to provide count files and a samplesheet file. Those files need to meet the conditions below:
+
+**<span style="color:red;">1.</span> Both count files and samplesheet file need to be in the ".txt" format**  
+**<span style="color:red;">2.</span> In count files, there should be only two columns (name of the transcripts and their respective count values);**
+**<span style="color:red;">3.</span> In samplesheet file, there should be at least three columns "Condition", "Fraction" and "File"**  
+**<span style="color:red;">4.</span> For every line of comment, there should be a tag "#" at the begining of the text**  
+**<span style="color:red;">5.</span> All the count files and the samplesheet file should be put in the same directory**  
+
+Functions in this package are linked to each other. We aim to output the proportion value for each transcript in supernatant (pSup value) at the final step. Before you use this package, we strongly recommand you to check your experimental design and think about what results you expect to get.
+
+## 1.2 Example data
+This vignette builds from a simulated dataset with two replicates, two fractions and six sample count files. For each count file, there are twenty transctipts, named from G1 to G20. Count values for Total, Pellet, Supernatant and pSup values for transcripts are simulated as below:
+
+$pSup: \mathcal{U}(min=0,max=1)$  
+$scaling.factor.Pellet: \mathcal{U}(min=0,max=1)$  
+$scaling.factor.Sup: \mathcal{U}(min=0,max=1)$  
+$N_{total}: X\sim\mathcal{N}(\mu,\,\sigma^{2})$  
+$N_{pellet}: P\left( x \right) = \frac{{e^{ - \lambda } \lambda ^x }}{{x!}}$, $\lambda=N_{total} \times scaling.factor.Pellet \times pSup$  
+$N_{supernatant}: P\left( x \right) = \frac{{e^{ - \lambda } \lambda ^x }}{{x!}}$, $\lambda=N_{total} \times scaling.factor.Sup \times (1-pSup)$  
+
+This **RNAFracQuant** package comes with a data directory called `extdata` that contains all the example files. In this vigenette, we will use this data directory. When reading in custom files, you will need to determine your own data directory. See `?getwd()` and `?setwd()` for more information.
+
+```{r example, eval = FALSE}
+# Samplesheet file format example
+system.file("extdata", "Samplesheet", package = "RNAFracQuant")
+# Count file format example
+system.file("extdata", "sample1.txt", package = "RNAFracQuant")
+```
+
+If you are interested in how those data are generated, you may find the following contents helpful. 
+
+--------------
+
+### 1.2.1 Simulate count values
+We assume there are two experiment conditions, 30C and 42C. Here we use function `dir.create` to create a filder to store those simulated data. Function [here::here](https://www.rdocumentation.org/packages/here/versions/0.1) helps to construct paths to your project's files. We use function `data.frame` to get a two-column data frame that contains the transcript names (ORF) and their respective RNA-seq count values. Function `set.seed` used here is to make sure the dataset is reproducible.
+
+```{r simulate_count_values, eval = FALSE}
+dir.create(here::here("simulated_data"))
+ORF <- paste0("G",1:20)
+set.seed(5)
+Tot1 <- floor(rlnorm(20, log(8000), log(1.5)))
+pSup1 <- runif(20, min=0, max=1) # pSup for condition 30C
+scaling_factor1S <- runif(1, min=0, max=1) # scaling factor for Sup in condition 30C
+scaling_factor1P <- runif(1, min=0, max=1) # scaling factor for Pellet in condition 30C
+Sup1 <- rpois(20, lambda = Tot1*scaling_factor1S*pSup1)
+Pellet1 <- rpois(20, lambda = Tot1*scaling_factor1P*(1-pSup1))
+sample1 <- data.frame(ORF, Tot1)
+```
+
+---------
+
+### 1.2.2 Write those values into text files
+Here we use function `write_tsv` to write those generated data frames into text files and also put them in the same directory. You can specify the directory as well as the file name as you prefer. See `?write_tsv()` for more information.
+
+```{r write_samples, eval = FALSE}
+write_tsv(sample1,
+          here::here("simulated_data","sample1.txt"),col_names = FALSE)
+sample2 <- data.frame(ORF, Sup1)
+write_tsv(sample2,
+          here::here("simulated_data","sample2.txt"),col_names = FALSE)
+sample3 <- data.frame(ORF, Pellet1)
+write_tsv(sample3,
+          here::here("simulated_data","sample3.txt"),col_names = FALSE)
+```
+
+----------
+
+### 1.2.3 Repeat for the second replicate
+The whole process illustrated above is repeated to get the second replicate (condition).
+
+```{r simulated_data_evaluation, eval = FALSE}
+set.seed(10)
+Tot2 <- floor(rlnorm(20, log(5000), log(1.5)))
+pSup2 <- runif(20, min=0, max=1) #pSup for condition 42C
+scaling_factor2S <- runif(1, min=0, max=1) #scaling factor for Sup in condition 42C
+scaling_factor2P <- runif(1, min=0, max=1) #scaling factor for Pellet in condition 42C
+Sup2 <- rpois(20, lambda = Tot2*scaling_factor2S*pSup2)
+Pellet2 <- rpois(20, lambda = Tot2*scaling_factor2P*(1-pSup2))
+sample4 <- data.frame(ORF, Tot2)
+write_tsv(sample4,
+          here::here("simulated_data","sample4.txt"),col_names = FALSE)
+sample5 <- data.frame(ORF, Sup2)
+write_tsv(sample5,
+          here::here("simulated_data","sample5.txt"),col_names = FALSE)
+sample6 <- data.frame(ORF, Pellet2)
+write_tsv(sample6,
+          here::here("simulated_data","sample6.txt"),col_names = FALSE)
+
+```
+
+----------
+
+# 2. Functions in this package
+There are several functions in this package. Some of them are responsible for reading files, the others are working for data manipulation and model fitting. There is also a function that you can choose to write the results as text files in a single directory. For different functions, you need to input different arguments. If you are not familiar with functions in r, you can refer to [Function arguments](http://adv-r.had.co.nz/Functions.html#function-arguments) written by Hadley Wickham for more information.
+
+```{r get_data_dir, echo=TRUE}
+DATA_DIR <- system.file("extdata/", package = "RNAFracQuant")
+```
+
+-------
+
+## 2.1 Reading one or more text files
+Here function **read_samplesheet** from this package **RNAFracQuant** reads the samplesheet file and outputs a single data frame. You can specify the name of the samplesheet file and the directory that contains the file by `read_samplesheet(dir_in = "my_folder", file = "my_file"` or just `read_samplesheet("my_folder", "my_file")`. Those two inpur arguments are the same in functions **read_samplesheet**, **load_samplesheet** and **get_wide_Fraction**.
+
+```{r load_samplesheet, echo=TRUE, results="show"}
+load_samplesheet <- read_samplesheet(dir_in = DATA_DIR, file = "Samplesheet")
+knitr::kable(load_samplesheet, align="c")
+```
+
+To read all the count files, function **read_samplesheet** is called within function **read_count_files**. Function **read_count_files** reads files listed in samplesheet "File" column and then output them in a single data frame. 
+
+```{r read_count_files, include=FALSE, warning=FALSE, message=TRUE, echo=TRUE}
+get_count <- read_count_files(dir_in = DATA_DIR, file = "Samplesheet")
+knitr::kable(head(get_count), align="c")
+```
+
+As we are interested in the count values of transcripts in different fractions, function **get_wide_Fraction** is neccessary for coverting data into a wide format. The output of this function would be used as the input data in the next functions. Data `wide_data` is loaded in **RNAFracQuant**, you can view it by `data(package = "RNAFracQuant")` after installing this package.
+
+```{r get_wide_Fraction, include=FALSE, warning=TRUE, message=TRUE, echo=TRUE}
+# Filter data using the ORF list generated above to get tidy data
+wide_data <- get_wide_Fraction(DATA_DIR,"Samplesheet")
+knitr::kable(head(wide_data), align="c")
+```
+
+## 2.2 Fit the bayesian stan model
+As described below, the bayesian statistical model is based on the fomula below:
+$Tot=scaling.factor.Sup \times Sup + scaling.factor.Pellet \times Pellet$  
+We aim to estimate the scalling factors (scaling.factor.Sup and scaling.factor.Pellet) to rescale the count values for supernatant and pellet.
+
+Instead of including the stan code in the functions for computing, the compiled stan model is loaded in this package as data **compile_model** using function `rstan::stan_model`. Data **compile_model** can be computed directory to draw samples, allowing inference to be performed for the model and wide_data. Thus, there is less time consumed for model fitting. See [rstan::stan_model](https://mc-stan.org/rstan/reference/stan_model.html) for more information. 
+
+--------
+
+In function **model_fit**, the number of chains in sampling is default to 4, the number of iteration is default to 1000 and the control is default to "list(adapt_delta = 0.85)". You can specify those values as you prefer. For example, `model_fit(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`. Those values can also be specified in function **get_paras_median**. See [rstan::sampling](https://mc-stan.org/rstan/reference/stanmodel-method-sampling.html) for more information. If you are interested in the stan model evaluation, you can view this bayesian statistical model graphical diagnosis by `shinystan::launch_shinystan(model_fit(wide_data))`. See [launch_shinystan](https://www.rdocumentation.org/packages/rstanarm/versions/2.15.3/topics/shinystan) or type `?shinystan::launch_shinystan` in Rstudio for more info.
+```{r model_fitting, eval = FALSE}
+model_fit(wide_data)
+# Inference for Stan model: model.
+# 4 chains, each with iter=1000; warmup=500; thin=1; 
+# post-warmup draws per chain=500, total post-warmup draws=2000.
+
+#                           mean se_mean   sd       2.5%        25%        50%        75%      97.5%
+# scaling_factor_sup          1.89    0.01 0.53       1.06       1.51       1.82       2.20       3.14
+# scaling_factor_pellet      11.99    0.04 1.45       9.30      11.00      11.94      12.92      15.06
+# phi                         2.62    0.02 0.57       1.59       2.21       2.60       2.99       3.81
+# lp__                  2005892.15    0.04 1.18 2005889.10 2005891.58 2005892.46 2005893.02 2005893.52
+#                       n_eff Rhat
+# scaling_factor_sup     1369    1
+# scaling_factor_pellet  1482    1
+# phi                    1261    1
+# lp__                    978    1
+
+# Samples were drawn using NUTS(diag_e) at Tue Jul 21 03:10:53 2020.
+# For each parameter, n_eff is a crude measure of effective sample size,
+# and Rhat is the potential scale reduction factor on split chains (at 
+# convergence, Rhat=1).
+```
+
+Get the estimated medians of parameters for each condition and output them in a single data frame. Similar to function **model_fit**, you can also specify the values of "chains", "iteration" and "control" as you prefer. For example, `get_paras_median(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`.
+```{r get_paras_medians, echo=TRUE, results="show"}
+# Get the median of each estimated parameter for each condition
+# Output a data frame
+paras_median <- get_paras_median(wide_data)
+knitr::kable(paras_median, align="c")
+```
+
+## 2.3 Calculate pSup for each transcript
+pSup stands for the values of the proportion of transcripts in the supernatant. It can be inferred that the proportion of transcripts in the pellet is 1-pSup.
+$pSup = \frac{{scaling.factor.Sup \times Sup}}{{scaling.factor.Sup \times Sup + scaling.factor.Pellet \times Pellet}}$  
+
+--------
+
+Here function **calculate_pSup** takes the wide format data in terms of fractions and output
+a data frame that includes a variable pSup calculated for each transcript. You can also specify the values of "chains", "iteration" and "control" as you prefer as the input arguments in this function. For example, `calculate_pSup(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`.
+```{r calculate_pSup, echo=TRUE, results="show"}
+data_pSup <- calculate_pSup(wide_data)
+knitr::kable(head(data_pSup), align="c")
+```
+
+Clear format to represent the proportion of each transcript in the Supernatant. Similar to function **model_fit**, you can also specify the values of "chains", "iteration" and "control" as you prefer. For example, `each_mRNA_pSup(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`.
+```{r show_each_mRNA_pSup, echo=TRUE, results="show"}
+# Generate a wider data frame
+# Each gene's pSup under each condition is clearly represented
+mRNA_pSup <- each_mRNA_pSup(wide_data)
+knitr::kable(head(mRNA_pSup), align="c")
+```
+
+
+## 2.4 Write results in a single directory
+Function **write_results** takes the outputs of functions in RNAFracQuant as the input arguments and then writes them into text files under the same "Results" directory. You can input unlimited number of arguments in this function, for example, `write_results(data1, data2, data3, ..., data_n)`. However, all the arguments should be data frames or tibbles, which can be written into files by `readr::write_tsv`. See [write_tsv](https://readr.tidyverse.org/reference/write_delim.html) or type `?readr::write_tsv` in Rstudio for more info.
+```{r show_pSup,  eval = FALSE}
+write_results <- function(data_pSup,paras_median,wide_data)
+# list.files("Results")
+# [1] "data_pSup.txt"    "paras_median.txt" "wide_data.txt" 
+```
+
+## 2.5 Summary
+If you only want to get the pSup values for transcripts, the code below shows you the quickest way to get them.
+
+```{r fast_way_get_pSup, eval = FALSE}
+mydata <- get_wide_Fraction(dir_in = mydirectory, file = myfile)
+result_data <- each_mRNA_pSup(wide_data = mydatda)
+write_results(result_data)
+```
+
+
+# 3. Model evaluation on simulated data
+To identidy whether our statistical model is reliable, we plotted the calculated pSup versus the actual pSup values. We can see that the distributions of inferred and actual pSup values do perfectly match each other. Therefore, we are confident to say that our model is reliable statistically. 
+
+![Model Evaluation Plot](system.file("vignettes", "Actual-vs-Inferred_pSup.png", package = "RNAFracQuant"))
+
+---------
+
+# 4. EXTRA INFO
+## 4.1 Issues update
+Please refer to [this page](https://github.com/thebestecho/demo_RNAFracQuant) for more info.
+## 4.2 Installation & library guide
+Please refer to [this page](https://github.com/thebestecho/demo_RNAFracQuant) for more info.
+
