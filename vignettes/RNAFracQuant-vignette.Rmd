@@ -1,8 +1,8 @@
 ---
 title: "Introduction to package RNAFracQuant"
 author:
-  - Edward Wallace^[University of Edinburgh, jane@example.org]
-  - Xuejia Ke^[University of Edinburgh, edward.wallace@ed.ac.uk]
+  - Edward Wallace^[University of Edinburgh, edward.wallace@ed.ac.uk]
+  - Xuejia Ke^[University of Edinburgh, x.ke-3@sms.ed.ac.uk]
 date: "July 2020"
 output:
   html_document:
@@ -40,6 +40,8 @@ This vignette introduces how to use the functions in this packge. This package e
 
 ![Experiment example design](system.file("vignettes", "Experiment_design.png", package = "RNAFracQuant"))
 
+-----------
+
 ## 1.1 Required input files and their format
 Users need to provide count files and a samplesheet file. Those files need to meet the conditions below:
 
@@ -50,6 +52,8 @@ Users need to provide count files and a samplesheet file. Those files need to me
 **<span style="color:red;">5.</span> All the count files and the samplesheet file should be put in the same directory**  
 
 Functions in this package are linked to each other. We aim to output the proportion value for each transcript in supernatant (pSup value) at the final step. Before you use this package, we strongly recommand you to check your experimental design and think about what results you expect to get.
+
+-----------
 
 ## 1.2 Example data
 This vignette builds from a simulated dataset with two replicates, two fractions and six sample count files. For each count file, there are twenty transctipts, named from G1 to G20. Count values for Total, Pellet, Supernatant and pSup values for transcripts are simulated as below:
@@ -143,38 +147,51 @@ DATA_DIR <- system.file("extdata/", package = "RNAFracQuant")
 -------
 
 ## 2.1 Reading one or more text files
-Here function **read_samplesheet** from this package **RNAFracQuant** reads the samplesheet file and outputs a single data frame. You can specify the name of the samplesheet file and the directory that contains the file by `read_samplesheet(dir_in = "my_folder", file = "my_file"` or just `read_samplesheet("my_folder", "my_file")`. Those two inpur arguments are the same in functions **read_samplesheet**, **load_samplesheet** and **get_wide_Fraction**.
+Here function **read_samplesheet** from this package **RNAFracQuant** reads the samplesheet file and outputs a single data frame. You can specify the name of the samplesheet file and the directory that contains the file by `read_samplesheet(dir_in = "my_folder", file = "my_file"` or just `read_samplesheet("my_folder", "my_file")`. Those two input arguments are the same in functions **read_samplesheet**, **load_samplesheet** and **get_wide_Fraction** of **RNAFracQuant**.
 
-```{r load_samplesheet, echo=TRUE, results="show"}
+```{r load_samplesheet, echo=TRUE, results = "hide"}
 load_samplesheet <- read_samplesheet(dir_in = DATA_DIR, file = "Samplesheet")
+```
+
+```{r show_samplesheet, echo=TRUE, results="show"}
 knitr::kable(load_samplesheet, align="c")
 ```
 
 To read all the count files, function **read_samplesheet** is called within function **read_count_files**. Function **read_count_files** reads files listed in samplesheet "File" column and then output them in a single data frame. 
 
-```{r read_count_files, include=FALSE, warning=FALSE, message=TRUE, echo=TRUE}
+```{r read_count_files, echo=TRUE, results = "hide"}
 get_count <- read_count_files(dir_in = DATA_DIR, file = "Samplesheet")
+```
+
+```{r read_count_files_result, echo=TRUE, results="show"}
 knitr::kable(head(get_count), align="c")
 ```
 
-As we are interested in the count values of transcripts in different fractions, function **get_wide_Fraction** is neccessary for coverting data into a wide format. The output of this function would be used as the input data in the next functions. Data `wide_data` is loaded in **RNAFracQuant**, you can view it by `data(package = "RNAFracQuant")` after installing this package.
+As we are interested in the count values of transcripts in different fractions, function **get_wide_Fraction** is neccessary for coverting data into a wide format. The output of this function would be used as the input data in the next functions. Data `wide_data` is pre_loaded in **RNAFracQuant**, you can obtain it by `data("wide_data")` after installing this package.
 
-```{r get_wide_Fraction, include=FALSE, warning=TRUE, message=TRUE, echo=TRUE}
+```{r get_wide_Fraction, echo=TRUE, results = "hide"}
 # Filter data using the ORF list generated above to get tidy data
 wide_data <- get_wide_Fraction(DATA_DIR,"Samplesheet")
+```
+
+```{r show_wide_Fraction, echo=TRUE, results = "show"}
 knitr::kable(head(wide_data), align="c")
 ```
 
+----------
+
 ## 2.2 Fit the bayesian stan model
 As described below, the bayesian statistical model is based on the fomula below:
-$Tot=scaling.factor.Sup \times Sup + scaling.factor.Pellet \times Pellet$  
+
+<span style="font-size:20px;">$Tot=scaling.factor.Sup \times Sup + scaling.factor.Pellet \times Pellet$</span>  
+
 We aim to estimate the scalling factors (scaling.factor.Sup and scaling.factor.Pellet) to rescale the count values for supernatant and pellet.
 
 Instead of including the stan code in the functions for computing, the compiled stan model is loaded in this package as data **compile_model** using function `rstan::stan_model`. Data **compile_model** can be computed directory to draw samples, allowing inference to be performed for the model and wide_data. Thus, there is less time consumed for model fitting. See [rstan::stan_model](https://mc-stan.org/rstan/reference/stan_model.html) for more information. 
 
 --------
 
-In function **model_fit**, the number of chains in sampling is default to 4, the number of iteration is default to 1000 and the control is default to "list(adapt_delta = 0.85)". You can specify those values as you prefer. For example, `model_fit(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`. Those values can also be specified in function **get_paras_median**. See [rstan::sampling](https://mc-stan.org/rstan/reference/stanmodel-method-sampling.html) for more information. If you are interested in the stan model evaluation, you can view this bayesian statistical model graphical diagnosis by `shinystan::launch_shinystan(model_fit(wide_data))`. See [launch_shinystan](https://www.rdocumentation.org/packages/rstanarm/versions/2.15.3/topics/shinystan) or type `?shinystan::launch_shinystan` in Rstudio for more info.
+In function **model_fit**, the number of chains in sampling is default to 4, the number of iteration is default to 1000 and the control is default to "list(adapt_delta = 0.85)". You can specify those values as you prefer. For example, `model_fit(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`. You can also input other arguments in **model_fit**, for example, `model_fit(wide_data = mydata, cores = getOption("mc.cores", 1L))`. See [rstan::sampling](https://mc-stan.org/rstan/reference/stanmodel-method-sampling.html) or type `?rstan::sampling` for more info. If you are interested in the stan model evaluation, you can view this bayesian statistical model graphical diagnosis by `shinystan::launch_shinystan(model_fit(wide_data))`. See [launch_shinystan](https://www.rdocumentation.org/packages/rstanarm/versions/2.15.3/topics/shinystan) or type `?shinystan::launch_shinystan` in Rstudio for more info.
 ```{r model_fitting, eval = FALSE}
 model_fit(wide_data)
 # Inference for Stan model: model.
@@ -198,43 +215,62 @@ model_fit(wide_data)
 # convergence, Rhat=1).
 ```
 
-Get the estimated medians of parameters for each condition and output them in a single data frame. Similar to function **model_fit**, you can also specify the values of "chains", "iteration" and "control" as you prefer. For example, `get_paras_median(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`.
-```{r get_paras_medians, echo=TRUE, results="show"}
+Get the estimated medians of parameters for each condition and output them in a single data frame. Similar to function **model_fit**, you can specify the values of "chains", "iteration" and "control" as you prefer. For example, `get_paras_median(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`. You can also input other arguments in **get_paras_median**, for example, `get_paras_median(wide_data = mydata, cores = getOption("mc.cores", 1L))`.  
+See `?rstan::sampling` in Rstudio for more information.
+```{r get_paras_medians, echo=TRUE, results="hide"}
 # Get the median of each estimated parameter for each condition
 # Output a data frame
 paras_median <- get_paras_median(wide_data)
+```
+
+```{r show_paras_median, echo=TRUE, results="show"}
 knitr::kable(paras_median, align="c")
 ```
 
+------------
+
 ## 2.3 Calculate pSup for each transcript
-pSup stands for the values of the proportion of transcripts in the supernatant. It can be inferred that the proportion of transcripts in the pellet is 1-pSup.
-$pSup = \frac{{scaling.factor.Sup \times Sup}}{{scaling.factor.Sup \times Sup + scaling.factor.Pellet \times Pellet}}$  
+pSup stands for the values of the proportion of transcripts in the supernatant. It can be inferred that the proportion of transcripts in the pellet is $1-pSup$.  
+
+<span style="font-size:25px;">$pSup = \frac{{scaling.factor.Sup \times Sup}}{{scaling.factor.Sup \times Sup + scaling.factor.Pellet \times Pellet}}$</span>
 
 --------
 
 Here function **calculate_pSup** takes the wide format data in terms of fractions and output
-a data frame that includes a variable pSup calculated for each transcript. You can also specify the values of "chains", "iteration" and "control" as you prefer as the input arguments in this function. For example, `calculate_pSup(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`.
-```{r calculate_pSup, echo=TRUE, results="show"}
+a data frame that includes a variable pSup calculated for each transcript. You can specify the values of "chains", "iteration" and "control" as you prefer as the input arguments in this function. For example, `calculate_pSup(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`. You can also input other arguments in **calculate_pSup**, for example, `calculate_pSup(wide_data = mydata, cores = getOption("mc.cores", 1L))`.  
+Type `?rstan::sampling` in Rstudio for more information.
+```{r calculate_pSup, echo=TRUE, results="hide"}
 data_pSup <- calculate_pSup(wide_data)
+```
+
+```{r show_data_pSup, echo=TRUE, results="show"}
 knitr::kable(head(data_pSup), align="c")
 ```
 
-Clear format to represent the proportion of each transcript in the Supernatant. Similar to function **model_fit**, you can also specify the values of "chains", "iteration" and "control" as you prefer. For example, `each_mRNA_pSup(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`.
+Clear format to represent the proportion of each transcript in the Supernatant. Similar to function **model_fit**, you can also specify the values of "chains", "iteration" and "control" as you prefer. For example, `each_mRNA_pSup(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`. You can also input other arguments in **each_mRNA_pSup**, for example, `each_mRNA_pSup(wide_data = mydata, cores = getOption("mc.cores", 1L))`.  
+Type `?rstan::sampling` in Rstudio for more information.
+```{r each_mRNA_pSup, echo=TRUE, results="hide"}
+mRNA_pSup <- each_mRNA_pSup(wide_data)
+```
+
 ```{r show_each_mRNA_pSup, echo=TRUE, results="show"}
 # Generate a wider data frame
 # Each gene's pSup under each condition is clearly represented
-mRNA_pSup <- each_mRNA_pSup(wide_data)
 knitr::kable(head(mRNA_pSup), align="c")
 ```
 
+-----------
 
 ## 2.4 Write results in a single directory
-Function **write_results** takes the outputs of functions in RNAFracQuant as the input arguments and then writes them into text files under the same "Results" directory. You can input unlimited number of arguments in this function, for example, `write_results(data1, data2, data3, ..., data_n)`. However, all the arguments should be data frames or tibbles, which can be written into files by `readr::write_tsv`. See [write_tsv](https://readr.tidyverse.org/reference/write_delim.html) or type `?readr::write_tsv` in Rstudio for more info.
+Function **write_results** takes the outputs of functions in RNAFracQuant as the input arguments and then writes them into text files under the same "Results" directory. You can input unlimited number of arguments in this function, for example, `write_results(data1, data2, data3, ..., data_n)`. However, all the arguments should be data frames or tibbles, which can be written into files by `readr::write_tsv`.  
+See [write_tsv](https://readr.tidyverse.org/reference/write_delim.html) or type `?readr::write_tsv` in Rstudio for more info.
 ```{r show_pSup,  eval = FALSE}
 write_results <- function(data_pSup,paras_median,wide_data)
 # list.files("Results")
 # [1] "data_pSup.txt"    "paras_median.txt" "wide_data.txt" 
 ```
+
+-----------
 
 ## 2.5 Summary
 If you only want to get the pSup values for transcripts, the code below shows you the quickest way to get them.
@@ -245,6 +281,7 @@ result_data <- each_mRNA_pSup(wide_data = mydatda)
 write_results(result_data)
 ```
 
+---------
 
 # 3. Model evaluation on simulated data
 To identidy whether our statistical model is reliable, we plotted the calculated pSup versus the actual pSup values. We can see that the distributions of inferred and actual pSup values do perfectly match each other. Therefore, we are confident to say that our model is reliable statistically. 
@@ -256,6 +293,7 @@ To identidy whether our statistical model is reliable, we plotted the calculated
 # 4. EXTRA INFO
 ## 4.1 Issues update
 Please refer to [this page](https://github.com/thebestecho/demo_RNAFracQuant) for more info.
+
 ## 4.2 Installation & library guide
 Please refer to [this page](https://github.com/thebestecho/demo_RNAFracQuant) for more info.
 
