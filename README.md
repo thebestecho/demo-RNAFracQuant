@@ -48,7 +48,7 @@ browseVignettes("RNAFracQuant")
 
 # 4. Quick guide
 
-If you only want to get the pSup values (the values of the proportion of transcripts in the supernatant) for transcripts, the code below shows you the quickest way to get them with **RNAFracQuant**.
+If you only want to get the pSup values for transcripts, the code below shows you the quickest way to get them with **RNAFracQuant**.
 ```
 mydata <- get_wide_Fraction(dir_in = mydirectory, file = myfile)
 result_data <- each_mRNA_pSup(wide_data = mydatda)
