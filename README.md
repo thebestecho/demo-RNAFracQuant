@@ -44,12 +44,14 @@ library(RNAFracQuant)
 
 # View vignettes or documentation
 
-R will load the knitr package to build these vignettes to HTML files, and you can see them when you type the commands lines:
+R will load the knitr package to build these vignettes to HTML files, and you can see them when you type the commands lines below.
+
+A list of vignettes in html format, including the function & data documentation.
 ```
-# A list of vignettes in html format
-# Including the function & data documentation
 help(package = "RNAFracQuant", help_type = "html")
-# Or you can view the single package vignette
+```
+Or you can view the single package vignette.
+```
 browseVignettes("RNAFracQuant")
 ```
 
