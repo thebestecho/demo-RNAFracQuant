@@ -1,5 +1,5 @@
 # RNAFracQuant - RNA Fraction Quantification
-Employ a bayesian statistical model to quantify the distribution of mRNA in different fractions after centrifugation of subcellular components.
+Quantify the distribution of mRNA from various subcellular components in different fractions after centrifugation.
 
 ------------
 
