@@ -292,7 +292,7 @@ To identidy whether our statistical model is reliable, we plotted the calculated
 
 # 4. EXTRA INFO
 ## 4.1 Issues update
-Please refer to [this page](https://github.com/thebestecho/demo_RNAFracQuant) for more info.
+If you get any problems with this package, you could update your questions [here](https://github.com/thebestecho/demo-RNAFracQuant/issues).
 
 ## 4.2 Installation & library guide
 Please refer to [this page](https://github.com/thebestecho/demo_RNAFracQuant) for more info.
