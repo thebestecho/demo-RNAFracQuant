@@ -1,5 +1,10 @@
-# demo-RNAFracQuant
-A demo r package RNAFracQuant
+# RNAFracQuant - RNA Fraction Quantification
+Employ a bayesian statistical model to quantify the distribution of mRNA in different fractions after centrifugation of subcellular components.
+
+# Contents
+
+------------
+
 # 1. Introduction
 This vignette introduces how to use the functions in this packge. This package employs a bayesian statistical model to quantify the distribution of mRNA in Saccharomyces Cerevisiae cells. The whole idea is based on this heat shock experiment:
 
@@ -24,11 +29,17 @@ Functions in this package are linked to each other. We aim to output the proport
 
 # 2. Installation
 
-We recommand you to use package "devtools" for dowloading this package from GitHub.
+We recommand you to use package "devtools" for dowloading this package from GitHub. Please refer [devtools installation instructions](https://www.r-project.org/nosvn/pandoc/devtools.html) for more information.
+
 ```
 install.packages("devtools")
 library(devtools)
 install_github("thebestecho/demo-RNAFracQuant",build_vignettes = TRUE)
+```
+
+Then load RNAFracQuant as a standard package:
+```
+library(RNAFracQuant)
 ```
 
 ---------
@@ -46,7 +57,7 @@ browseVignettes("RNAFracQuant")
 
 ----------------
 
-# 4. Quick guide
+## 3.1 Quick guide
 
 If you only want to get the pSup values for transcripts, the code below shows you the quickest way to get them with **RNAFracQuant**.
 ```
@@ -59,5 +70,5 @@ write_results(result_data)
 
 
 
-# 5. Issues update
+# 4. Issues update
 If you get any problems with this package, you could update your questions [here](https://github.com/thebestecho/demo-RNAFracQuant/issues).
