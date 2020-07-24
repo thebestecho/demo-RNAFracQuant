@@ -38,7 +38,10 @@ This vignette introduces how to use the functions in this packge. This package e
 
 *"To prepare RNA-seq data, cells are fractionated before cloning the resulting RNA into cDNA libraries. Then after centrifugation, granules with large molecular weight would deposit at the bottom and the others remain in the supernatant. Total transcripts and transcripts in the two factions (Supernatant, Pellet) are measured respectively both before and after heat shock. Therefore, for each transcript, we have a basic formula $N_{total} = N_{pellet} + N_{supernatant}$."*
 
-![Experiment example design](system.file("vignettes", "Experiment_design.png", package = "RNAFracQuant"))
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics(system.file("help","figures","Experiment_design.png",package = "RNAFracQuant"))
+```
+![Experiment example design]
 
 -----------
 
@@ -284,9 +287,12 @@ write_results(result_data)
 ---------
 
 # 3. Model evaluation on simulated data
-To identidy whether our statistical model is reliable, we plotted the calculated pSup versus the actual pSup values. We can see that the distributions of inferred and actual pSup values do perfectly match each other. Therefore, we are confident to say that our model is reliable statistically. 
+To identify whether our statistical model is reliable, we plotted the calculated pSup versus the actual pSup values. We can see that the distributions of inferred and actual pSup values do perfectly match each other. Therefore, we are confident to say that our model is reliable statistically. 
 
-![Model Evaluation Plot](system.file("vignettes", "Actual-vs-Inferred_pSup.png", package = "RNAFracQuant"))
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics(system.file("help","figures","Actual-vs-Inferred_pSup.png",package = "RNAFracQuant"))
+```
+![Model Evaluation Plot]
 
 ---------
 
