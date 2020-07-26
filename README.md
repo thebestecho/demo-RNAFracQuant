@@ -18,7 +18,7 @@ Users need to provide count files and a samplesheet file. Those files need to me
 **<span style="color:red;">1.</span> Both count files and samplesheet file need to be in the ".txt" format**  
 **<span style="color:red;">2.</span> In count files, there should be only two columns (name of the transcripts and their respective count values);**
 **<span style="color:red;">3.</span> In samplesheet file, there should be at least three columns "Condition", "Fraction" and "File"**  
-**<span style="color:red;">4.</span> If there are multiple replicates, they can be specified in the column "Replicates". But this doesn't affect results**  
+**<span style="color:red;">4.</span> If there are multiple replicates, they can be specified in the column "Replicates". But this doesn't affect your results**  
 **<span style="color:red;">5.</span> If there are multiple experimental groups, they <span style="color:red;">must</span> be specified in conditions instead of in a seperate column. This is because parameters involved in our model are estimated for conditions respectively**  
 **<span style="color:red;">6.</span> For every line of comment, there should be a tag "#" at the begining of the text**  
 **<span style="color:red;">7.</span> All the count files and the samplesheet file should be put in the same directory**  
