@@ -54,7 +54,7 @@ each_mRNA_pSup <- function(wide_data, chains = 4,
 {
   calculate_pSup(wide_data,chains = chains, 
                  iter = iter, control = control) %>%
-    select(Condition,ORF,pSup) %>%
+    select(-scaling.factor.Pellet,-scaling.factor.Sup,-Tot,-Sup,-Pellet) %>%
     pivot_wider(names_from = Condition,values_from = pSup)
 }
 

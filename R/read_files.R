@@ -68,7 +68,7 @@ get_wide_Fraction <- function(dir_in, file)
   data <- read_count_files(dir_in, file) %>%
     ungroup() %>%
     #' ## Select the columns that we need
-    select(Condition,Fraction,ORF,Count) %>%
+    select(-File) %>%
     #' ## Generate a wider data format to get the variables of fractions
     pivot_wider(names_from = Fraction,values_from = Count)
 }
