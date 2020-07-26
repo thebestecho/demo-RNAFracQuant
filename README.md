@@ -50,12 +50,12 @@ Example sample sheet file for containing **multiple experimental groups** (e.g. 
 | 30C_WT	 | Tot	    |sample1.txt |
 | 30C_WT   | Sup      |sample2.txt |
 | 30C_WT	 | Pellet	  |sample3.txt |
-| 30C_WT   | Tot      |sample4.txt |
-| 30C_WT	 | Sup	    |sample5.txt |        
-| 30C_WT   | Pellet   |sample6.txt |
-| 40C_KO	 | Tot	    |sample7.txt |
-| 40C_KO   | Sup      |sample8.txt |
-| 40C_KO	 | Pellet	  |sample9.txt |
+| 40C_WT   | Tot      |sample4.txt |
+| 40C_WT	 | Sup	    |sample5.txt |        
+| 40C_WT   | Pellet   |sample6.txt |
+| 30C_KO	 | Tot	    |sample7.txt |
+| 30C_KO   | Sup      |sample8.txt |
+| 30C_KO	 | Pellet	  |sample9.txt |
 | 40C_KO   | Tot      |sample10.txt|
 | 40C_KO	 | Sup	    |sample11.txt|
 | 40C_KO   | Pellet   |sample12.txt|
