@@ -12,14 +12,18 @@ This package employs a bayesian statistical model to quantify the distribution o
 
 -----------
 
-## Required input files and their format
+## 1.1 Required input files and their format
 Users need to provide count files and a samplesheet file. Those files need to meet the conditions below:
 
 **<span style="color:red;">1.</span> Both count files and samplesheet file need to be in the ".txt" format**  
-**<span style="color:red;">2.</span> In count files, there should be only two columns (name of the transcripts and their respective count values)**  
+**<span style="color:red;">2.</span> In count files, there should be only two columns (name of the transcripts and their respective count values);**
 **<span style="color:red;">3.</span> In samplesheet file, there should be at least three columns "Condition", "Fraction" and "File"**  
-**<span style="color:red;">4.</span> For every line of comment, there should be a tag "#" at the begining of the text**  
-**<span style="color:red;">5.</span> All the count files and the samplesheet file should be put in the same directory**  
+**<span style="color:red;">4.</span> If there are multiple replicates, they can be specified in the column "Replicates"**  
+**<span style="color:red;">5.</span> If there are multiple experimental groups, they <span style="color:red;">must</span> be specified in conditions instead of in a seperate column**  
+**<span style="color:red;">6.</span> For every line of comment, there should be a tag "#" at the begining of the text**  
+**<span style="color:red;">7.</span> All the count files and the samplesheet file should be put in the same directory**  
+
+
 
 Functions in this package are linked to each other. We aim to output the proportion value for each transcript in supernatant (pSup value) at the final step. Before you use this package, we strongly recommand you to check your experimental design and think about what results you expect to get.
 
