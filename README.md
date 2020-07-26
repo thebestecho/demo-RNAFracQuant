@@ -83,7 +83,7 @@ library(RNAFracQuant)
 
 # View vignettes or documentation
 
-R will load the knitr package to build these vignettes to HTML files, and you can see them when you type the commands lines below.
+R will load the knitr package to build these vignettes to HTML files, and you can see them when you type the command lines below.
 
 A list of vignettes in html format, including the function & data documentation.
 ```
