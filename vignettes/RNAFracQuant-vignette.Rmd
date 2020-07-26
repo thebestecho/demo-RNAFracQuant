@@ -59,7 +59,7 @@ Functions in this package are linked to each other. We aim to output the proport
 -----------
 
 ## 1.2 Example data
-This vignette builds from a simulated dataset with two replicates, two fractions and six sample count files. For each count file, there are twenty transctipts, named from G1 to G20. Count values for Total, Pellet, Supernatant and pSup values for transcripts are simulated as below:
+This vignette builds from a simulated dataset with one replicate, three fractions, two conditions and six sample count files. For each count file, there are twenty transctipts, named from G1 to G20. Count values for Total, Pellet, Supernatant and pSup values for transcripts are simulated as below:
 
 $pSup: \mathcal{U}(min=0,max=1)$  
 $scaling.factor.Pellet: \mathcal{U}(min=0,max=1)$  
