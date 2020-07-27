@@ -15,7 +15,7 @@ parameters {
   real<lower=0> scaling_factor_pellet;
   
   // dispersion parameter for counts
-  real phi;
+  real<lower=0> phi;
 }
 model{
   // mixing ratios
