@@ -76,11 +76,11 @@ each_mRNA_pSup <- function(wide_data, chains = 4,
 #' }
 write_results <- function(...){
   dir.create("Results")
-  dir <- here::here("Results")
+  dir <- ("Results")
   dots <- substitute(list(...))
   name <- sapply(dots, deparse)[-1]
   for(i in 1:length(list(...))){
-    write_tsv(list(...)[[i]],
+    readr::write_tsv(list(...)[[i]],
               file.path(dir, paste0(name[[i]],".txt")))
   }
 }
