@@ -101,7 +101,7 @@ browseVignettes("RNAFracQuant")
 If you only want to get the pSup values for transcripts, the code below shows you the quickest way to get them with **RNAFracQuant**.
 ```
 mydata <- get_wide_Fraction(dir_in = mydirectory, file = myfile)
-result_data <- each_mRNA_pSup(wide_data = mydatda)
+result_data <- each_mRNA_pSup(wide_data = mydata)
 write_results(result_data)
 ```
 
