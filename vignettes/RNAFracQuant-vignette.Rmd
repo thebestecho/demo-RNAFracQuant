@@ -96,10 +96,11 @@ Functions in this package are linked to each other. We aim to output the proport
 ## 1.2 Example data
 This vignette builds from a simulated dataset with one replicate, three fractions, two conditions and six sample count files. For each count file, there are twenty transctipts, named from G1 to G20. Count values for Total, Pellet, Supernatant and pSup values for transcripts are simulated as below:
 
-$pSup: \mathcal{U}(min=0,max=1)$  
+$pSup: \mathcal{U}(min=0,max=1)$ 
+$Total: X\sim\mathcal{Lognormal}(\mu,\,\sigma^{2})$ 
 $scaling.factor.Pellet: \mathcal{U}(min=0,max=1)$  
 $scaling.factor.Sup: \mathcal{U}(min=0,max=1)$  
-$N_{total}: X\sim\mathcal{N}(\mu,\,\sigma^{2})$  
+$N_{total}: P\left( x \right) = \frac{{e^{ - \lambda } \lambda ^x }}{{x!}}$  
 $N_{pellet}: P\left( x \right) = \frac{{e^{ - \lambda } \lambda ^x }}{{x!}}$, $\lambda=N_{total} \times scaling.factor.Pellet \times pSup$  
 $N_{supernatant}: P\left( x \right) = \frac{{e^{ - \lambda } \lambda ^x }}{{x!}}$, $\lambda=N_{total} \times scaling.factor.Sup \times (1-pSup)$  
 
@@ -123,12 +124,13 @@ We assume there are two experiment conditions, 30C and 42C. Here we use function
 dir.create(here::here("simulated_data"))
 ORF <- paste0("G",1:20)
 set.seed(5)
-Tot1 <- floor(rlnorm(20, log(8000), log(1.5)))
-pSup1 <- runif(20, min=0, max=1) # pSup for condition 30C
+Total <- floor(rlnorm(20, log(8000), log(1.5))) # Pre-simulated total
+pSup <- runif(20, min=0, max=1) # Pre-simulated pSup
 scaling_factor1S <- runif(1, min=0, max=1) # scaling factor for Sup in condition 30C
 scaling_factor1P <- runif(1, min=0, max=1) # scaling factor for Pellet in condition 30C
-Sup1 <- rpois(20, lambda = Tot1*scaling_factor1S*pSup1)
-Pellet1 <- rpois(20, lambda = Tot1*scaling_factor1P*(1-pSup1))
+Tot1 <- rpois(20, lambda = 1000)
+Sup1 <- rpois(20, lambda = Total*scaling_factor1S*pSup)
+Pellet1 <- rpois(20, lambda = Tot1*scaling_factor1P*(1-pSup))
 sample1 <- data.frame(ORF, Tot1)
 ```
 
@@ -155,12 +157,11 @@ The whole process illustrated above is repeated to get the second replicate (con
 
 ```{r simulated_data_evaluation, eval = FALSE}
 set.seed(10)
-Tot2 <- floor(rlnorm(20, log(5000), log(1.5)))
-pSup2 <- runif(20, min=0, max=1) #pSup for condition 42C
 scaling_factor2S <- runif(1, min=0, max=1) #scaling factor for Sup in condition 42C
 scaling_factor2P <- runif(1, min=0, max=1) #scaling factor for Pellet in condition 42C
-Sup2 <- rpois(20, lambda = Tot2*scaling_factor2S*pSup2)
-Pellet2 <- rpois(20, lambda = Tot2*scaling_factor2P*(1-pSup2))
+Tot2 <- rpois(20, lambda = 1000)
+Sup2 <- rpois(20, lambda = Total*scaling_factor2S*pSup)
+Pellet2 <- rpois(20, lambda = Total*scaling_factor2P*(1-pSup))
 sample4 <- data.frame(ORF, Tot2)
 write_tsv(sample4,
           here::here("simulated_data","sample4.txt"),col_names = FALSE)
