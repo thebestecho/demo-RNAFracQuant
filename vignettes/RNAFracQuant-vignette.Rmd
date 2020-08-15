@@ -336,5 +336,5 @@ knitr::include_graphics(system.file("help","figures","Actual-vs-Inferred_pSup.pn
 If you get any problems with this package, you could update your questions [here](https://github.com/thebestecho/demo-RNAFracQuant/issues).
 
 ## 4.2 Installation & library guide
-Please refer to [this page](https://github.com/thebestecho/demo_RNAFracQuant) for more info.
+Please refer to [this page](https://github.com/thebestecho/demo-RNAFracQuant) for more info.
 
