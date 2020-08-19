@@ -1,5 +1,5 @@
 # RNAFracQuant - RNA Fraction Quantification
-Quantify the distribution of mRNA from various subcellular components in different fractions after centrifugation.
+Quantify the distribution of RNAs from cellular fractions.
 
 ------------
 
