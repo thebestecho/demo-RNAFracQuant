@@ -6,7 +6,7 @@ Quantify the distribution of mRNA from various subcellular components in differe
 # Introduction
 This package employs a bayesian statistical model to quantify the distribution of mRNA in Saccharomyces Cerevisiae cells. The whole idea is based on this heat shock experiment:
 
-*"To prepare RNA-seq data, cells are fractionated before cloning the resulting RNA into cDNA libraries. Then after centrifugation, granules with large molecular weight would deposit at the bottom and the others remain in the supernatant. Total transcripts and transcripts in the two factions (Supernatant, Pellet) are measured respectively both before and after heat shock. Therefore, for each transcript, we have a basic formula $N_{total} = N_{pellet} + N_{supernatant}$."*
+*"To prepare RNA-seq data, cells are fractionated before cloning the resulting RNA into cDNA libraries. Then after centrifugation, granules with large molecular weight would deposit at the bottom and the others remain in the supernatant. Total transcripts and transcripts in the two factions (Supernatant, Pellet) are measured respectively both before and after heat shock."*
 
 ![Experiment example design](man/figures/Experiment_design.png)
 
