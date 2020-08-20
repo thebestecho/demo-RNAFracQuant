@@ -226,8 +226,6 @@ As described below, the bayesian statistical model is based on the fomula below:
 
 We aim to estimate the scalling factors (scaling.factor.Sup and scaling.factor.Pellet) to rescale the count values for supernatant and pellet.
 
-Instead of including the stan code in the functions for computing, the compiled stan model is loaded in this package as data **compile_model** using function `rstan::stan_model`. Data **compile_model** can be computed directory to draw samples, allowing inference to be performed for the model and wide_data. Thus, there is less time consumed for model fitting. See [rstan::stan_model](https://mc-stan.org/rstan/reference/stan_model.html) for more information. 
-
 --------
 
 In function **model_fit**, the number of chains in sampling is default to 4, the number of iteration is default to 1000 and the control is default to "list(adapt_delta = 0.85)". You can specify those values as you prefer. For example, `model_fit(wide_data = mydata, chains = 3, iter = 1500, control = list(adapt_delta = 0.85))`. You can also input other arguments in **model_fit**, for example, `model_fit(wide_data = mydata, cores = getOption("mc.cores", 1L))`. See [rstan::sampling](https://mc-stan.org/rstan/reference/stanmodel-method-sampling.html) or type `?rstan::sampling` for more info. If you are interested in the stan model evaluation, you can view this bayesian statistical model graphical diagnosis by `shinystan::launch_shinystan(model_fit(wide_data))`. See [launch_shinystan](https://www.rdocumentation.org/packages/rstanarm/versions/2.15.3/topics/shinystan) or type `?shinystan::launch_shinystan` in Rstudio for more info.
