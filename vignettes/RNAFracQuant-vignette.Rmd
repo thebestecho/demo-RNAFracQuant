@@ -220,7 +220,7 @@ knitr::kable(head(wide_data), align="c")
 ----------
 
 ## 2.2 Fit the bayesian stan model
-As described below, the bayesian statistical model is based on the fomula below:
+As described above, the bayesian statistical model is based on the fomula below:
 
 <span style="font-size:20px;">$Tot=scaling.factor.Sup \times Sup + scaling.factor.Pellet \times Pellet$</span>  
 
